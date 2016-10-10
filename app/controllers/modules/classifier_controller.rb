@@ -30,14 +30,16 @@ module Modules
     end
 
     def advanced_search
-      @types = Modules::ClassifierType.all
+      @types_payer = Modules::ClassifierType.where(payer: true).all
+      @types_receipt = Modules::ClassifierType.where(receipt: true).all
       @items = items_by_koatuu.only(:pnaz, :edrpou).to_a.sort_by! { |hash| hash.pnaz }
       respond_with(@types, @items)
     end
 
     def by_type
       # add 'where' filter if type was select
-      @items = (params["type"].blank? ? items_by_koatuu : items_by_koatuu.where(k_form: params["type"])).to_a.sort_by! do |hash|
+      type = Modules::ClassifierType.find(params["type"])
+      @items = (params["type"].blank? ? items_by_koatuu : items_by_koatuu.where(:k_form.in=> type["code"])).to_a.sort_by! do |hash|
         if params['sort_column'].blank?
           # use default sorting if sorting params empty
           hash.pnaz
@@ -64,31 +66,19 @@ module Modules
         widgets = DBF::Table.new(data, nil, 'cp866')
         #TODO: Do refactor in future
         i = 0
+        types = Modules::ClassifierType.all_types
+        #binding.pry
+
         widgets.each do |widget|
-          #binding.pry
-          if i < 20
+
+          if i < 5
             attributes = widget.attributes
             web = Modules::Classifier.new
-            if(web.fill_params attributes)
-              #i=i+1
+            if(web.fill_params attributes, types)
+              # i=i+1
             end
           end
         end
-        # Zip::File.open('foo.zip') do |zip_file|
-        #   # Handle entries one by one
-        #   zip_file.each do |entry|
-        #     # Extract to file/directory/symlink
-        #     puts "Extracting #{entry.name}"
-        #     entry.extract(dest_file)
-        #
-        #     # Read into memory
-        #     content = entry.get_input_stream.read
-        #   end
-        #
-        #   # Find specific entry
-        #   entry = zip_file.glob('*.csv').first
-        #   puts entry.get_input_stream.read
-        # end
       end
     end
 
