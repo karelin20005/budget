@@ -20,7 +20,7 @@ namespace :modules_classifier_types do
     Modules::ClassifierType.new(name: "Інші установи та заклади", code: [440, 590, 610], payer: false, receipt: true).save
     Modules::ClassifierType.new(name: "Громадські організації", code: [810, 815], payer: false, receipt: true).save
     Modules::ClassifierType.new(name: "Спілки та інші об’єднання",
-                                code: [820, 825, 830, 840, 845, 855, 830, 935, 995], payer: false, receipt: true).save
+                                code: [820, 825, 830, 840, 845, 855, 930, 935, 995], payer: false, receipt: true).save
     Modules::ClassifierType.new(name: "Органи самоорганізації населення", code: [860], payer: false, receipt: true).save
   end
 
