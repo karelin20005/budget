@@ -160,7 +160,6 @@
 
 :javascript
   $(document).ready(function() {
-
     // use for changing datepicker locale
     moment.locale("#{I18n.locale}");
     // init and setup datepicker
@@ -177,22 +176,18 @@
       startDate: moment().subtract(1, 'days'),
       endDate: moment().subtract(1, 'days')
     });
-
     $('#_item_type_payers').select2({
       placeholder: I18n.t('modules.classifier.advanced_search.payers_type_placeholder'),
       allowClear: true,
       minimumResultsForSearch: -1
     });
-
     $('#_item_type_recipt').select2({
       placeholder: I18n.t('modules.classifier.advanced_search.recipt_type_placeholder'),
       allowClear: true,
       minimumResultsForSearch: -1
     });
-
     init_item_select($('#_item_payers'));
     init_item_select($('#_item_recipt'));
-
     // add event: if select/unselect item -> clear results and toggle items list
     $('#_item_payers, #_item_recipt').on('change', function() {
       $('.results').empty();
@@ -203,13 +198,11 @@
         $("#items-list").show();
       }
     });
-
     // add event: if change type -> clear value of item select and change select options
     $('#_item_type_payers, #_item_type_recipt').on('change', function() {
       init_item_select($(this));
       $("#items-list").show();
     });
-
     // add action for search button
     $('#search').on('click', function(e){
       var edrpous = {
@@ -217,11 +210,10 @@
         recipt: $('#_item_recipt').val()
       };
       var start_date = $('#_startdate').val();
-      get_data(edrpous, start_date);
+      advanced_search("#{modules_classifier_search_e_data_url}", edrpous, start_date);
       $("#items-list").hide();
       e.preventDefault();
     });
-
     // add event for sorting search results
     $('.results').on('click', '#edata_payments th', function() {
       var _this = $(this);
@@ -235,10 +227,9 @@
         sort_col: _this.attr('data-column'),
         sort_dir: _this.attr('data-sort-direction')
       };
-      get_data(edrpous, start_date, sort_conf);
+      advanced_search("#{modules_classifier_search_e_data_url}", edrpous, start_date, sort_conf);
       _this.attr('data-sort-direction', sort_direction(sort_conf['sort_dir'])).addClass('active');
     });
-
     // add event for sorting items list
     $('#items-list').on('click', '#edata_items th', function() {
       var _this = $(this);
@@ -248,89 +239,36 @@
         sort_col: _this.attr('data-column'),
         sort_dir: _this.attr('data-sort-direction')
       };
-      get_items(type, _this.data('role'), sort_param);
+      get_items("#{modules_classifier_by_type_url}", type, _this.data('role'), sort_param);
       _this.attr('data-sort-direction', sort_direction(sort_param.sort_dir)).addClass('active');
     });
-
   });
-
-  // this function return search results and using for sort them
-  // sorting params may be empty
-  function get_data(edrpous, period, _sort_conf, _type) {
-    $('#spinner-container').show();
-    var town_id = $('#_item_payers').data('town-id');
-    if(_type=='xls') var url = "#{modules_classifier_search_e_data_url(:format => :xls)}";
-    else var url = "#{modules_classifier_search_e_data_url}";
-    $.ajax({
-      type: 'get',
-      url: url,
-      async: false,
-      dataType: 'script',
-      data: {
-        town_id: town_id,
-        payers_edrpous: edrpous.payer,
-        recipt_edrpous: edrpous.recipt,
-        period: period,
-        sort_col: (_sort_conf != null ? _sort_conf.sort_col : null),
-        sort_dir: (_sort_conf != null ? _sort_conf.sort_dir : null)
-      }
-    });
-    $('#spinner-container').hide();
-  }
-
-  // this function return items by type and using for sort them
-  // function change items list and items select options depend on type value
-  // sorting params may be empty
-  // sorting apply for items list only (manage by controller)
-  function get_items(type, role, _sort_param) {
-    $('#spinner-container').show();
-    var town_id = $('#_item_type_payers').data('town-id');
-    $.ajax({
-      type: 'post',
-      url: "#{modules_classifier_by_type_url}",
-      async: false,
-      dataType: 'script',
-      data: {
-        town_id: town_id,
-        type: type,
-        role: role,
-        sort_column: (_sort_param != null ? _sort_param.sort_col : null),
-        sort_direction: (_sort_param != null ? _sort_param.sort_dir : null)
-      }
-    });
-    $('#spinner-container').hide();
-  }
-
-  // switch sort direction
-  function sort_direction(attr) {
-    if (attr == 'asc') {
-      return 'desc';
-    }
-    else {
-      return 'asc';
-    }
-  }
-
+  // // switch sort direction
+  // function sort_direction(attr) {
+  //   if (attr == 'asc') {
+  //     return 'desc';
+  //   }
+  //   else {
+  //     return 'asc';
+  //   }
+  // }
   function dp_ranges_config() {
     // need for internationalization range labels
     var yesterday = I18n.t('modules.classifier.advanced_search.dateranges.yesterday');
     var last_7_days = I18n.t('modules.classifier.advanced_search.dateranges.last_7_days');
     var last_30_days = I18n.t('modules.classifier.advanced_search.dateranges.last_30_days');
     var last_3_months = I18n.t('modules.classifier.advanced_search.dateranges.last_3_months');
-
     var ranges = {};
     ranges[yesterday] = [moment().subtract(1, 'days'), moment().subtract(1, 'days')];
     ranges[last_7_days] = [moment().subtract(6, 'days'), moment()];
     ranges[last_30_days] = [moment().subtract(29, 'days'), moment()];
     ranges[last_3_months] = [moment().subtract(2, 'month'), moment()];
-
     return ranges;
   }
-
   // This function change selected value to empty in item select
   // and reinit select2 after changing select options.
   // This actions define in '*.js.erb'
   function init_item_select(selector) {
     $('#_item_' + selector.data('role')).val('').trigger('change');
-    get_items(selector.val(), selector.data('role'));
+    get_items("#{modules_classifier_by_type_url}", selector.val(), selector.data('role'));
   }

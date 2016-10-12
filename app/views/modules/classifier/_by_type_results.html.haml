@@ -4,8 +4,7 @@
     %td= item['pnaz']
     %td= item['naz_v']
     %td= item['adp']
-#pagination.text-center
-  = paginate @items, remote: true, theme: 'e_data_template', params: {'sort_col' => 'trans_date', 'sort_dir' => 'asc', "method" => 'post'}
+
 :javascript
   $(document).ready(function() {
     // add event for change item select value by mouse click and hide items list
