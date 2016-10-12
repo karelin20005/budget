@@ -34,21 +34,6 @@ class Modules::Classifier
 
   end
 
-  def self.to_xls(payments)
-    require 'rubyXL'
-    workbook = RubyXL::Workbook.new
-    worksheet = workbook[0]
-    worksheet.sheet_name = 'Transactions'
-
-    payments.each do |attr_name, attr_value|
-
-        worksheet.add_cell(0, i, attr_name)
-        worksheet.add_cell(1, i, attr_value)
-    end
-    workbook.stream.read
-
-  end
-
 
   def find_town
     k_ter_tmp = k_ter
@@ -71,12 +56,13 @@ class Modules::Classifier
   end
 
 
-  def self.to_csv
-    attributes = %w{edrpou pnaz k_ter}
-    CSV.generate(headers: true) do |csv|
-      csv << attributes
-      all.each do |classf|
-        csv << attributes.map{ |attr| classf.send(attr) }
+  def self.to_csv payments
+    CSV.generate(headers: true, col_sep: "\t") do |csv|
+      csv << [I18n.t('modules.classifier.search_e_data.sum'), I18n.t('modules.classifier.search_e_data.payer'),
+              I18n.t('modules.classifier.search_e_data.recipt'), I18n.t('modules.classifier.search_e_data.purpose'),
+              I18n.t('modules.classifier.search_e_data.date')]
+      payments.each do |payment|
+        csv << [payment["amount"], payment["payer_name"], payment["recipt_name"] + " " + payment["recipt_edrpou"], payment["payment_details"], payment['trans_date'].split('T')[0]]
       end
     end
   end

@@ -20,7 +20,7 @@ module Modules
         respond_to do |format|
           format.js { render 'modules/classifier/search_e_data' }
           format.json { render json: @payments }
-          format.xls { send_data Modules::Classifier.to_xls(@payments) }
+          format.csv { send_data Modules::Classifier.to_csv(data) }
         end
       else
         respond_to do |format|
@@ -38,8 +38,7 @@ module Modules
 
     def by_type
       # add 'where' filter if type was select
-      type = Modules::ClassifierType.find(params["type"])
-      @items = (params["type"].blank? ? items_by_koatuu : items_by_koatuu.where(:k_form.in=> type["code"])).to_a.sort_by! do |hash|
+      @items = (params["type"].blank? ? items_by_koatuu : items_by_koatuu.where(:k_form.in=> Modules::ClassifierType.find(params["type"])["code"])).to_a.sort_by! do |hash|
         if params['sort_column'].blank?
           # use default sorting if sorting params empty
           hash.pnaz
@@ -47,6 +46,7 @@ module Modules
           hash[params['sort_column']]
         end
       end
+      @items = Kaminari.paginate_array(@items).page(params[:page]).per(10)
       @items.reverse! unless params['sort_column'].blank? || params['sort_direction'].eql?('asc')
       @role = params["role"]
       # switch between '*.js.erb' depend on sorting params

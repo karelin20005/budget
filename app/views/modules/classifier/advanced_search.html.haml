@@ -256,12 +256,14 @@
 
   // this function return search results and using for sort them
   // sorting params may be empty
-  function get_data(edrpous, period, _sort_conf) {
+  function get_data(edrpous, period, _sort_conf, _type) {
     $('#spinner-container').show();
     var town_id = $('#_item_payers').data('town-id');
+    if(_type=='xls') var url = "#{modules_classifier_search_e_data_url(:format => :xls)}";
+    else var url = "#{modules_classifier_search_e_data_url}";
     $.ajax({
       type: 'get',
-      url: "#{modules_classifier_search_e_data_url}",
+      url: url,
       async: false,
       dataType: 'script',
       data: {
