@@ -87,7 +87,6 @@ class Programs::TargetedProgramsController < ApplicationController
     end
   end
 
-
   def town_programs
     @programs = Programs::TargetedProgram.by_town(params[:town])
     @years = Programs::TargetedProgram.programs_years(@programs)
